@@ -1,0 +1,5 @@
+# List of Docker dep files on local machine. Order is important.
+docker_deb_files: []
+
+# A list of users who will be added to the docker group.
+docker_users: []

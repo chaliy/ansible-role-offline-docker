@@ -1,0 +1,23 @@
+galaxy_info:
+  role_name: offline_docker
+  namespace: chaliy
+  author: Mykhailo Chalyi
+  description: Install Docker into air-gapped offline environments
+
+  issue_tracker_url: https://github.com/chaliy/ansible-role-offline-docker/issues
+
+  license: MIT
+
+  min_ansible_version: "2.1"
+
+  platforms:
+  - name: Ubuntu
+    versions:
+      - all
+
+  galaxy_tags:
+    - docker
+    - offline
+    - airgapped
+
+dependencies: []

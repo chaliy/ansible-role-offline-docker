@@ -1,0 +1,47 @@
+---
+- name: Create temp debs directory 🔧
+  ansible.builtin.file:
+    path: "{{ tmp_docker_debs }}"
+    state: directory
+    recurse: true
+
+- name: Copy Docker dep files to target file system 📦
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ tmp_docker_debs }}"
+    mode: u=rw,g=r,o=r
+  with_items: "{{ docker_deb_files | mandatory }}"
+
+- ansible.builtin.find:
+    paths: "{{ tmp_docker_debs }}"
+    recurse: yes
+
+# WTF: It seems ansible.builtin.apt does not support installing multiple debs at once.
+# So, we have to install them one by one, however they depends on each other. So we have to install them in a specific order.
+- name: Install Docker debs 👨‍🍳
+  become: true
+  ansible.builtin.apt:
+    deb: "{{ deb_path }}"
+  vars:
+    deb_path: "{{ tmp_docker_debs }}/{{ item | basename }}"
+  with_items: "{{ docker_deb_files | mandatory }}"
+
+# TODO rm -rf /tmp/docker-debs
+
+- name: Get docker group info using getent 🔧
+  ansible.builtin.getent:
+    database: group
+    key: docker
+    split: ':'
+  when: docker_users | length > 0
+
+- name: Ensure docker users are added to the docker group 🔧
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  with_items: "{{ docker_users }}"
+
+- name: Reset ssh connection to apply user changes 🔧
+  ansible.builtin.meta: reset_connection
+

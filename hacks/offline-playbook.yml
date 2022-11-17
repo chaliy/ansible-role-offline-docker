@@ -1,0 +1,27 @@
+---
+- name: Save offline artificates
+  hosts: localhost
+  connection: local
+
+  vars:
+    target_platform: amd64 # arm64 or amd64
+    offline_path: ./.offline
+
+  tasks:
+    - name: Create docker Debs directory 🔧
+      ansible.builtin.file:
+        path: "{{ offline_path }}/docker/"
+        state: directory
+        recurse: true
+
+    - name: Download Docker debs for Ubuntu 22.04.1 LTS (Jammy Jellyfish) 🚢
+      ansible.builtin.get_url:
+        url: "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/{{ target_platform }}/{{ item }}"
+        dest: "{{ offline_path }}/docker/"
+        mode: u=rw,g=r,o=r
+      with_items:
+        - "containerd.io_1.6.9-1_{{ target_platform }}.deb"
+        - "docker-ce-cli_20.10.21~3-0~ubuntu-jammy_{{ target_platform }}.deb"
+        - "docker-ce-rootless-extras_20.10.21~3-0~ubuntu-jammy_{{ target_platform }}.deb"
+        - "docker-ce_20.10.21~3-0~ubuntu-jammy_{{ target_platform }}.deb"
+        - "docker-compose-plugin_2.6.0~ubuntu-jammy_{{ target_platform }}.deb"
